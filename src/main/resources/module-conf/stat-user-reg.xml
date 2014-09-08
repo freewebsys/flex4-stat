@@ -2,7 +2,6 @@
 <stats>
     <!-- 统计数据xml 按照id进行查找。-->
     <stat id="stat-demo-1">
-
         <!-- 展示数据 -->
         <list>
             <column field="id" text="id"/>
@@ -12,9 +11,7 @@
             <column field="phone" text="注册电话"/>
         </list>
         <sql><![CDATA[
-
             select id,`name`,sex,city,phone,address,qq,email from stat_demo_01 limit 10
-
         ]]></sql>
     </stat>
 </stats>
