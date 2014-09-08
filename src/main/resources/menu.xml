@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 定义左侧菜单： -->
+<menus>
+    <menu label="用户数据统计">
+        <menu label="用户注册统计" module="/assets/flex/DataGrid.swf" id="stat-demo"/>
+        <menu label="用户登陆统计" module="/assets/flex/DataGrid.swf" id="stat-user-reg"/>
+    </menu>
+    <menu label="系统设置">
+        <menu label="菜单管理" module="MenuManager.swf" id=""/>
+        <menu label="数据管理" module="DataManager.swf" id=""/>
+    </menu>
+</menus>

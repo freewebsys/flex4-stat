@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx" 
+		  width="100%" height="100%"  initialize="initApp();">
+	<fx:Style source="./assets/main.css" />
+	<fx:Declarations>
+		<mx:HTTPService id="moduleService" method="GET"
+						resultFormat="e4x" result="resultHandler();"/>
+	</fx:Declarations>
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		mx|Text.headLabelStyle{fontSize:20;fontWeight:bold;}
+	</fx:Style>
+	<fx:Script>
+		<![CDATA[	
+			import mx.collections.*;
+			import mx.controls.*;
+			import mx.controls.advancedDataGridClasses.*;
+			import mx.utils.*;
+			
+			import spark.components.*;
+			
+			private function initApp():void{
+				try { 
+					/* 删除问号前面的所有内容，包括问号。 */ 
+					var myPattern:RegExp = /.*\?/; 
+					var url:String = this.loaderInfo.url.toString();
+					//Alert.show(this.loaderInfo.height+","+this.loaderInfo.width);
+					
+					dataGridGroup.width = this.loaderInfo.width;
+					//dataGridGroup.height = this.loaderInfo.height;
+					
+					url = url.replace(myPattern, ""); 
+					
+					/* 创建一个形如name=value字符串数组 */ 
+					var params:Array = url.split("&"); 
+					
+					/* 输出数组中的参数，找到moduleId，这个参数，其他参数类似。 */ 
+					var moduleId:String = "";
+					for (var key:String in params) { 
+						var value:String = String(params[key]);
+						if(value.indexOf("moduleId=") >= 0){
+							moduleId = value.replace("moduleId=","");
+							break;
+						} 
+					}
+					//Alert.show(moduleId);
+					//设置请求地址获取模块参数配置。
+					moduleService.url = "/stat/module/data.do?moduleId="+moduleId;
+					moduleService.send();
+					
+				} catch (e:Error) { 
+					trace(e); 
+				} 
+				
+				/* 显示loaderInfo的一些有用的信息 */ 
+				trace("AS version: " + this.loaderInfo.actionScriptVersion); 
+				//trace("App height: " + this.loaderIno.height); 
+				//trace("App width: " + this.loaderInffo.width); 
+				trace("App bytes: " + this.loaderInfo.bytesTotal); 
+			}
+			
+			private function genWhere(dataXml:XML):HGroup{
+				var hgroup:HGroup = new HGroup();
+				//保证居中和左对齐。
+				hgroup.verticalAlign="middle"
+				hgroup.horizontalAlign = "left";
+				
+				//Alert.show(dataXml.where.column);
+				for each(var objWhere:Object in dataXml.where.column){
+					var field:String = objWhere.@field;
+					var text:String = objWhere.@text;
+					
+					var inputLabel:spark.components.Label = new spark.components.Label();
+					inputLabel.text = text;
+					hgroup.addElement(inputLabel);
+					var input:spark.components.TextInput = new spark.components.TextInput();
+					input.id = field;
+					hgroup.addElement(input);
+					var sp:Spacer = new Spacer();
+					sp.width = 10;
+					hgroup.addElement(sp);
+				}
+				//如果存在where数据则增加查询按钮。
+				if(dataXml.where.column.length() > 0){
+					var search:spark.components.Button = new spark.components.Button();
+					search.label = "查询";
+					hgroup.addElement(search);
+				}
+				return hgroup;
+			}
+			
+			//动态生成 AdvancedDataGrid 数据表单.
+			private function genAdvancedDataGrid(dataXml:XML):AdvancedDataGrid{
+				//Alert.show(menuList.source.columns.column);
+				//Alert.show(menuList.source.data);
+				//格式化json数据。将数据转换成数组。放到DataGrid里面。
+				var tmpArray:Array = (JSON.parse(dataXml.data) as Array);
+				//Alert.show(array.length());
+				var dataArray:ArrayCollection = new ArrayCollection(tmpArray);
+				
+				//#######################设置列表显示顶部标题.
+				var columnArray:Array = new Array();
+				for each(var objColumn:Object in dataXml.list.column){
+					var dataField:String = objColumn.@field;
+					var headerText:String = objColumn.@text;
+					var width:String = objColumn.@width;
+					//设置DataGridColun标题，和显示属性。
+					var adColumn:AdvancedDataGridColumn  = new AdvancedDataGridColumn(dataField);
+					adColumn.headerText = headerText;
+					if(width){
+						adColumn.width = Number(width);
+					}
+					columnArray.push(adColumn);
+				}
+				//adg1.columns();
+				//adg1.columnCount();
+				//adg1.columns(columnArray);
+				
+				var adg:AdvancedDataGrid = new AdvancedDataGrid();
+				adg.id = "adg-"+id;
+				
+				adg.dataProvider = dataArray;
+				adg.columns = columnArray;
+				adg.rowCount = tmpArray.length + 1;
+				return adg;
+			}
+			
+			//请求数据成功之后处理动态生成表格。
+			private function resultHandler():void{
+				
+				for each(var obj:Object in moduleService.lastResult.stat){
+					var dataXml:XML = obj as XML;
+					//获得模板id,标题.
+					var id:String = dataXml.@id;
+					var title:String = dataXml.@title;
+					
+					//设置
+					var vgroup:VGroup = new VGroup();
+					//设置内边距15。						
+					vgroup.paddingTop = 15;
+					vgroup.paddingLeft = 15;
+					vgroup.paddingRight = 15;
+					vgroup.paddingBottom =  15;
+					//设置标题。
+					var titleText:Text = new Text();
+					titleText.text = title;
+					titleText.styleName = "headLabelStyle";
+					vgroup.addElement(titleText);
+					
+					var hgroup:HGroup = genWhere(dataXml);
+					vgroup.addElement(hgroup);
+					//生成高级表格。
+					var adg:AdvancedDataGrid = genAdvancedDataGrid(dataXml);
+					vgroup.addElement(adg);
+					
+					dataGridGroup.addElement(vgroup);
+				}
+				
+				
+			}
+		]]>
+	</fx:Script>
+	<!-- 设置如果超过高度滚动. -->
+	<s:VGroup id="dataGridGroup" height="100%"/>
+	
+</mx:Module>

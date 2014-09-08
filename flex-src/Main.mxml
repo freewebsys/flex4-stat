@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   xmlns:flexlib="http://code.google.com/p/flexlib/"
+			   minWidth="1000" minHeight="700" initialize="initApp();">
+	<fx:Style source="./assets/main.css" />
+	<!--<fx:Script source="./navbar/NavBarControls.as"/>-->
+	<fx:Declarations>
+		<mx:HTTPService id="menuService" url="/stat/menu.do" method="GET"
+						resultFormat="e4x" result="menuList.source = menuService.lastResult.menu;"/>
+		<s:XMLListCollection id="menuList"/>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import flexlib.controls.SuperTabBar;
+			import flexlib.controls.tabBarClasses.SuperTab;
+			import flexlib.events.SuperTabEvent;
+			import flexlib.events.TabReorderEvent;
+			import mx.containers.VBox;
+			import mx.controls.Alert;
+			import mx.controls.Label;
+			import mx.core.EdgeMetrics;
+			import mx.modules.ModuleLoader;
+			
+		private function initApp():void
+		{
+			menuService.send();
+		}
+		
+		[Embed(source="./assets/document.png")]
+		private var document_icon:Class;
+		//tab左面的图标.
+		//private var moduleSwfOpenMap:Object = new Object();
+		//定义打开app类型数组.
+		
+		private function treeChanged(event:Event):void
+		{//响应树点击的双击事件.
+			var nodeLabel:String = compLibTree.selectedItem.@label;
+			var moduleSwf:String = compLibTree.selectedItem.@module;
+			var nodeId:String = compLibTree.selectedItem.@id;
+			//app是xml里面的定义的一个属性.
+			if (moduleSwf != null && moduleSwf != ""){//如果有app这个属性.说明这个是一个叶子节点.开始加载那个flex文件.
+				addTab(nodeLabel, contentId, moduleSwf,nodeId);
+				//打开选项卡.带关闭按钮的选项卡.
+			}else{//如果里面没有app这个字段.说明这个是个文件夹.
+				compLibTree.expandItem(compLibTree.selectedItem, true, true);
+				//展开文件夹显示下面的内容.
+			}
+		}
+		
+		private function addTab(myLabel:String, navigator:SuperTabNavigator,moduleSwf:String,nodeId:String):void {
+			//进行判断.看看新添加的childTab是否在getChildern()里面.如果有就打开.否则就新建.
+			for each (var childTab:VBox in contentId.getChildren()){
+				if(childTab.label == myLabel){//只是通过标签名字判断.如果一样就直接打开标签.
+					contentId.selectedIndex = contentId.getChildIndex(childTab);
+					//跳转到指定标签.
+					return;
+				}
+			}
+			//var swfLoader:SWFLoader = new SWFLoader();
+			var modLoader:ModuleLoader = new ModuleLoader();
+			//动态加载flex类.在这里进行定义.每一个table新建立一个实例.
+			var curNum:Number = contentId.numChildren + 1;
+			var child:VBox = new VBox();
+			child.setStyle("closable", true);
+			//设置选项卡可以关闭.
+			child.label = myLabel;
+			//设置选项卡的名称.
+			child.icon = document_icon;
+			//设置选项卡的左面的文档图标.
+			modLoader.url = moduleSwf + "?moduleId=" + nodeId;
+			//Alert.show(modLoader.url);
+			//开始动态加载swf文件.
+			child.addChild(modLoader);
+			navigator.addChild(child);
+			//将加载后的swf类放到child里面,再放到navigator里面.
+			contentId.selectedIndex = contentId.numChildren - 1;
+		}
+		]]>
+	</fx:Script>
+	
+	<s:VGroup width="100%" height="100%">
+		<mx:ApplicationControlBar width="100%" height="60">
+			<s:Spacer width="10%"/>
+			<s:Label id="topTitle">通用配置统计系统free-stat</s:Label>
+			<s:Spacer width="80%"/>
+			<s:Button left="10" click="Alert.show('通用配置统计系统flex4-stat，v-0.1Beta\n作者:toeoso@gmail.com');" label="关于"/>
+			<s:Spacer width="5%"/>
+		</mx:ApplicationControlBar>
+		<mx:HDividedBox width="100%" height="100%">  
+			<mx:Tree id="compLibTree" width="15%" height="100%" change="treeChanged(event)"
+					 dataProvider="{menuList}" labelField="@label" showRoot="false"/>  
+			<!--<mx:TextArea width="85%" height="100%" text="Selected Item: {selectedNode.@label}"/>-->
+			<flexlib:SuperTabNavigator id="contentId" width="85%" height="100%"
+									   closePolicy="{SuperTab.CLOSE_ROLLOVER}" horizontalGap="0"
+									   scrollSpeed="25" startScrollingEvent="{MouseEvent.MOUSE_DOWN}"
+									   stopScrollingEvent="{MouseEvent.MOUSE_UP}"/>
+		</mx:HDividedBox>
+		
+		<s:Label width="100%">
+			2014-05-08
+		</s:Label>
+	</s:VGroup>
+	
+	
+</s:Application>

@@ -1,0 +1,23 @@
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace flexlib "http://code.google.com/p/flexlib/";
+s|Application 
+{
+	font-family: Arial;
+	font-size: 13;
+}
+
+s|Button {
+	font-size: 13;
+	upSkin:ClassReference('flexlib.skins.EnhancedButtonSkin');
+	overSkin:ClassReference('flexlib.skins.EnhancedButtonSkin');
+	downSkin:ClassReference('flexlib.skins.EnhancedButtonSkin');
+	disabledSkin:ClassReference('flexlib.skins.EnhancedButtonSkin');
+	selectedUpSkin:ClassReference('flexlib.skins.EnhancedButtonSkin');
+	selectedOverSkin:ClassReference('flexlib.skins.EnhancedButtonSkin');
+	selectedDownSkin:ClassReference('flexlib.skins.EnhancedButtonSkin');
+	selectedDisabledSkin:ClassReference('flexlib.skins.EnhancedButtonSkin');
+}
+s|Label{
+	font-size: 13;
+}

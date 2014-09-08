@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<stats>
+    <!-- 统计数据xml 按照id进行查找。-->
+    <stat id="stat-demo-1" title="1,登陆用户数据统计">
+
+        <!-- 展示数据 -->
+        <list>
+            <column field="id" text="id" width="120"/>
+            <column field="name" text="登陆姓名" width="120"/>
+            <column field="sex" text="性别" width="120"/>
+            <column field="city" text="登陆城市" width="120"/>
+            <column field="phone" text="电话" width="120"/>
+        </list>
+        <where>
+            <column field="name" text="姓名" type="input"/>
+            <column field="email" text="email" type="selectJson"/>
+            <column field="name" text="姓名" type="input"/>
+            <column field="email" text="email" type="selectJson"/>
+            <column field="name" text="姓名" type="input"/>
+            <column field="email" text="email" type="selectJson"/>
+            <column field="name" text="姓名" type="input"/>
+            <column field="email" text="email" type="selectJson"/>
+            <column field="name" text="姓名" type="input"/>
+            <column field="email" text="email" type="selectJson"/>
+            <column field="name" text="姓名" type="input"/>
+            <column field="email" text="email" type="selectJson"/>
+        </where>
+        <sql><![CDATA[
+            select id,`name`,sex,city,phone,address,qq,email from stat_demo_01 limit 10
+        ]]></sql>
+    </stat>
+
+    <!-- 统计数据xml 按照id进行查找。-->
+    <stat id="stat-demo-2" title="2，注册用户数据统计">
+
+        <!-- 展示数据 -->
+        <list>
+            <column field="id" text="id" width="200"/>
+            <column field="name" text="注册姓名" width="200"/>
+            <column field="sex" text="性别" width="200"/>
+            <column field="city" text="注册城市" width="200"/>
+            <column field="phone" text="电话" width="200"/>
+        </list>
+        <sql><![CDATA[
+            select id,`name`,sex,city,phone,address,qq,email from stat_demo_01 limit 5,25
+        ]]></sql>
+    </stat>
+
+    <!-- 统计数据xml 按照id进行查找。-->
+    <stat id="stat-demo-2" title="3，流失用户数据统计">
+
+        <!-- 展示数据 -->
+        <list>
+            <column field="id" text="id" width="120"/>
+            <column field="name" text="流失姓名" width="120"/>
+            <column field="sex" text="性别" width="120"/>
+            <column field="city" text="流失城市" width="120"/>
+            <column field="phone" text="电话" width="120"/>
+        </list>
+        <sql><![CDATA[
+            select id,`name`,sex,city,phone,address,qq,email from stat_demo_01 limit 30,10
+        ]]></sql>
+    </stat>
+</stats>
